@@ -3,10 +3,13 @@ package com.project2.connection.service;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Collection;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.project2.connection.model.Server;
 import com.project2.connection.repository.ServerRepo;
@@ -33,39 +36,43 @@ public class ServerServiceImpl implements ServerService {
 	public Server create(Server server) { //POST Request
 		log.info("Saving new server: {}", server.getName());
 		
-		server.setImageUrl(setServerImageUrl(""));
+		server.setImageUrl(setServerImageUrl());
 		return serverRepo.save(server);
 	}
 
-	private String setServerImageUrl(String ipAddress) {
-		log.info("Saving server IP: {}", ipAddress);
-		Server server = serverRepo.findByIpAddress(ipAddress);
-		
-		return null;
+	private String setServerImageUrl() {
+		String[] imageNames = { "server1.jpeg", "server2.jpeg", "server3.jpeg", "server4.jpeg" };
+		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/server/image/" + 
+				imageNames[new Random().nextInt(4) ]).toUriString();
 	}
 
 	@Override
 	public Collection<Server> list(int limit) {
-		// TODO Auto-generated method stub
-		return null;
+		log.info("Fetching all servers.");
+		
+		return serverRepo.findAll(PageRequest.of(0, limit)).toList();
 	}
 
 	@Override
 	public Server get(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		log.info("Fetching a server by id: {}", id);
+		
+		return serverRepo.findById(id).get();
 	}
 
 	@Override
 	public Server update(Server server) {
-		// TODO Auto-generated method stub
-		return null;
+		log.info("Updating server: {}", server.getName());
+		
+		return serverRepo.save(server);
 	}
 
 	@Override
 	public Boolean delete(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		log.info("Deleting server by ID: {}", id);
+		
+		serverRepo.deleteById(id);
+		return Boolean.TRUE;
 	}
 
 	@Override
